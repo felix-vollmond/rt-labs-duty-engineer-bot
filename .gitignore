@@ -8,3 +8,8 @@ venv/
 
 # VS Code settings
 .vscode/
+
+# SQLite database
+db/
+*.db
+*.sqlite
