@@ -154,3 +154,66 @@ class DutyBotDatabase:
         """
         self.cur.execute(query, (id,))
         self.con.commit()
+
+
+    def get_duties_by_date(self, date: str) -> list[tuple]:
+        query = """
+            SELECT date,
+                   engineer_id,
+                   department_id
+              FROM duties
+             WHERE date = ?
+        """
+        self.cur.execute(query, (date,))
+        return self.cur.fetchall()
+
+    def add_duty(self, date: str, engineer_id: int) -> None:
+        query1 = """
+            SELECT department_id FROM engineers WHERE engineer_id = ?
+        """
+        self.cur.execute(query1, (engineer_id,))
+
+        department_id = self.cur.fetchone()[0]
+
+        query2 = """
+            INSERT INTO duties (date, engineer_id, department_id)
+            VALUES (?, ?, ?)
+        """
+        self.cur.execute(query2, (date, engineer_id, department_id))
+        self.con.commit()
+
+    def update_duty(
+            self,
+            date: str,
+            department_id: int,
+            engineer_id: int
+    ) -> None:
+        if not self.__engineer_in_department(engineer_id, department_id):
+            return
+
+        query = """
+            UPDATE duties SET engineer_id = ?
+            WHERE date = ? AND department_id = ?
+        """
+        self.cur.execute(query, (engineer_id, date, department_id))
+        self.con.commit()
+
+    def delete_duty(self, date: str, department_id: int) -> None:
+        query = """
+            DELETE FROM duties WHERE date = ? AND department_id = ?
+        """
+        self.cur.execute(query, (date, department_id))
+        self.con.commit()
+
+
+    def __engineer_in_department(
+            self,
+            engineer_id: int,
+            department_id: int
+    ) -> bool:
+        query = """
+            SELECT 1 FROM engineers
+            WHERE engineer_id = ? AND department_id = ?
+        """
+        self.cur.execute(query, (engineer_id, department_id))
+        return self.cur.fetchone() is not None
