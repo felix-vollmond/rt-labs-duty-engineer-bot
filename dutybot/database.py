@@ -1,10 +1,6 @@
-import os
 import sqlite3
-from dotenv import load_dotenv
 
-load_dotenv()
-
-DB_PATH = os.getenv('DB_PATH', 'db/dutybot.sqlite')
+from dutybot.config import DB_PATH
 
 
 class DutyBotDatabase:
