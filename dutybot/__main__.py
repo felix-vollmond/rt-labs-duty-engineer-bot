@@ -6,6 +6,10 @@ from dutybot.config import BOT_TOKEN
 
 from dutybot.handlers.start import start_handler
 from dutybot.handlers.help import help_handler
+from dutybot.handlers.engineers.show import (
+    engineers_command_handler, list_engineers_handler,
+    on_engineer_selected_handler
+)
 
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -16,6 +20,7 @@ async def on_startup(app: Application):
     commands = [
         BotCommand('start', 'запуск бота'),
         BotCommand('help', 'справка по командам'),
+        BotCommand('engineers', 'список инженеров'),
     ]
     await app.bot.set_my_commands(commands)
 
@@ -34,6 +39,9 @@ def main() -> None:
 
     app.add_handler(start_handler)
     app.add_handler(help_handler)
+    app.add_handler(engineers_command_handler)
+    app.add_handler(list_engineers_handler)
+    app.add_handler(on_engineer_selected_handler)
 
     app.add_error_handler(error)
 
