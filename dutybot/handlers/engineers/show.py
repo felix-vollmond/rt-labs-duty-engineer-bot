@@ -49,6 +49,23 @@ async def list_engineers(
     )
 
 
+def engineer_info(db: DutyBotDatabase, engineer_id: int) -> str:
+    engineer = db.get_engineer(engineer_id)
+
+    if not engineer:
+        return 'Инженер не найден.'
+
+    full_name, email, phone, department_id = engineer[1:]
+    department = db.get_department(department_id)[1]
+    
+    return (
+        f'👤 Имя: <b>{full_name}</b>\n\n'
+        f'📧 Email: <b>{email}</b>\n\n'
+        f'📞 Телефон: <b>{phone}</b>\n\n'
+        f'🏢 Отдел: <b>{department}</b>'
+    )
+
+
 async def on_engineer_selected(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE
@@ -57,28 +74,18 @@ async def on_engineer_selected(
     await query.answer()
 
     db: DutyBotDatabase = context.bot_data['db']
-
     engineer_id = int(query.data.split(':')[1])
-    engineer = db.get_engineer(engineer_id)
 
-    if not engineer:
-        await query.edit_message_text('Инженер не найден.')
-        return
-
-    full_name, email, phone, department_id = engineer[1:]
-    department = db.get_department(department_id)[1]
-    
-    text = (
-        f'👤 Имя: <b>{full_name}</b>\n\n'
-        f'📧 Email: <b>{email}</b>\n\n'
-        f'📞 Телефон: <b>{phone}</b>\n\n'
-        f'🏢 Отдел: <b>{department}</b>'
-    )
+    text = engineer_info(db, engineer_id)
 
     keyboard = [[
         InlineKeyboardButton(
             '⬅ Назад',
             callback_data=f'list_engineers'
+        ),
+        InlineKeyboardButton(
+            '✏️ Редактировать',
+            callback_data=f'edit_engineer:{engineer_id}'
         ),
     ]]
 
