@@ -11,7 +11,7 @@ from dutybot.handlers.engineers.show import (
     on_engineer_selected_handler
 )
 from dutybot.handlers.engineers.edit import (
-    on_edit_engineer_handler
+    on_edit_engineer_handler, edit_conversation_handler
 )
 
 
@@ -46,6 +46,7 @@ def main() -> None:
     app.add_handler(list_engineers_handler)
     app.add_handler(on_engineer_selected_handler)
     app.add_handler(on_edit_engineer_handler)
+    app.add_handler(edit_conversation_handler)
 
     app.add_error_handler(error)
 
