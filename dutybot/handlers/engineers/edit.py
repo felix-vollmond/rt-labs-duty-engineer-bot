@@ -1,3 +1,5 @@
+import re
+
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup
 )
@@ -9,6 +11,9 @@ from telegram.ext import (
 from dutybot.database import DutyBotDatabase
 from .show import engineer_info
 
+
+EMAIL_REGEX = re.compile(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$')
+PHONE_REGEX = re.compile(r'^\+7\d{10}$')
 
 (
     EDIT_EMAIL,
@@ -169,7 +174,7 @@ async def on_email_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await handle_field_input(
         update, context,
         field='email',
-        validator=lambda v: bool(v.strip()),  # TODO: implement a real validator
+        validator=lambda v: EMAIL_REGEX.match(v),
         error_text='❌ Некорректный формат для электронной почты',
         success_text='✅ Электронная почта обновлена',
     )
@@ -191,7 +196,7 @@ async def on_phone_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await handle_field_input(
         update, context,
         field='phone',
-        validator=lambda v: bool(v.strip()),  # TODO: implement a real validator
+        validator=lambda v: PHONE_REGEX.match(v),
         error_text='❌ Некорректный формат для номера телефона',
         success_text='✅ Номер телефона обновлён',
     )
