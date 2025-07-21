@@ -67,6 +67,20 @@ async def on_edit_engineer(
     )
 
 
+def department_keyboard(
+        departments: list[tuple[int, str]],
+        engineer_id: int
+) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton(
+            name,
+            callback_data=
+                f'edit_engineer:{engineer_id}:department:{department_id}'
+        )]
+        for department_id, name in departments
+    ])
+
+
 async def on_edit_engineer_field(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE
@@ -92,10 +106,20 @@ async def on_edit_engineer_field(
         reply_markup=None
     )
 
-    await query.message.reply_text(
-        f'<i>{prompt}</i>',
-        parse_mode='HTML'
-    )
+    if field == 'department':
+        db: DutyBotDatabase = context.bot_data['db']
+        departments = db.get_departments()
+
+        await query.message.reply_text(
+            f'<i>{prompt}</i>',
+            reply_markup=department_keyboard(departments, engineer_id),
+            parse_mode='HTML'
+        )
+    else:
+        await query.message.reply_text(
+            f'<i>{prompt}</i>',
+            parse_mode='HTML'
+        )
 
     return {
         'full_name': EDIT_NAME,
@@ -174,6 +198,40 @@ async def on_phone_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+async def on_department_selected(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE
+):
+    query = update.callback_query
+    await query.answer()
+
+    _, engineer_id, _, department_id = query.data.split(':')
+
+    db: DutyBotDatabase = context.bot_data['db']
+
+    db.update_engineer(engineer_id, department_id=department_id)
+
+    engineer = db.get_engineer(engineer_id)[1]
+    department = db.get_department(department_id)[1]
+
+    await query.edit_message_text(
+        f'✅ <b>{engineer}</b> переведён в отдел <b>«{department}»</b>',
+        reply_markup=None,
+        parse_mode='HTML'
+    )
+
+    text = engineer_info(db, engineer_id)
+    keyboard = engineer_fields_keyboard(engineer_id)
+
+    await query.message.reply_text(
+        text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+
+    return ConversationHandler.END
+
+
 on_edit_engineer_handler = CallbackQueryHandler(
     on_edit_engineer,
     pattern=r'^edit_engineer:\d+$'
@@ -196,7 +254,9 @@ edit_conversation_handler = ConversationHandler(
             filters.TEXT & ~filters.COMMAND,
             on_phone_input
         )],
-        EDIT_DEPARTMENT: [],
+        EDIT_DEPARTMENT: [CallbackQueryHandler(
+            on_department_selected,
+            pattern=r'^edit_engineer:\d+:department:\d+$')],
     },
     fallbacks=[],
 )
