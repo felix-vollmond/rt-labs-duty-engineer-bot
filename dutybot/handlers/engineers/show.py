@@ -78,16 +78,24 @@ async def on_engineer_selected(
 
     text = engineer_info(db, engineer_id)
 
-    keyboard = [[
-        InlineKeyboardButton(
-            '⬅ Назад',
-            callback_data=f'list_engineers'
-        ),
-        InlineKeyboardButton(
-            '✏️ Редактировать',
-            callback_data=f'edit_engineer:{engineer_id}'
-        ),
-    ]]
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                '✏️ Редактировать',
+                callback_data=f'edit_engineer:{engineer_id}'
+            ),
+            InlineKeyboardButton(
+                '🗑 Удалить',
+                callback_data=f'confirm_delete_engineer:{engineer_id}'
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                '⬅ Назад',
+                callback_data=f'list_engineers'
+            ),
+        ],
+    ]
 
     await query.edit_message_text(
         text,

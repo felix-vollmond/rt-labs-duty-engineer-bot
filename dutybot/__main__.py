@@ -13,6 +13,9 @@ from dutybot.handlers.engineers.show import (
 from dutybot.handlers.engineers.edit import (
     on_edit_engineer_handler, edit_conversation_handler
 )
+from dutybot.handlers.engineers.delete import (
+    on_confirm_delete_engineer_handler, on_delete_engineer_handler
+)
 
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -47,6 +50,8 @@ def main() -> None:
     app.add_handler(on_engineer_selected_handler)
     app.add_handler(on_edit_engineer_handler)
     app.add_handler(edit_conversation_handler)
+    app.add_handler(on_confirm_delete_engineer_handler)
+    app.add_handler(on_delete_engineer_handler)
 
     app.add_error_handler(error)
 
