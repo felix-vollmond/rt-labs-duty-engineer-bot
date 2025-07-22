@@ -8,7 +8,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         '<code>/start</code> — запуск бота\n'
         '<code>/help</code> — справка по командам\n'
         '<code>/cancel</code> — отмена действия\n\n'
-        '<code>/engineers</code> — список инженеров\n\n'
+        '<code>/engineers</code> — список инженеров\n'
+        '<code>/newengineer</code> — добавление нового инженера\n\n'
         '<i>Остальные команды добавятся позже!</i>'
     )
     await update.message.reply_text(text, parse_mode='HTML')
