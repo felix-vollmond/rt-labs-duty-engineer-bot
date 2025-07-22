@@ -141,17 +141,25 @@ async def handle_field_input(
     validator: callable,
     error_text: str,
     success_text: str,
-):
+) -> int:
     edit_data = context.user_data.get('edit_engineer')
     if not edit_data:
-        return
+        return {
+            'full_name': EDIT_NAME,
+            'email': EDIT_EMAIL,
+            'phone': EDIT_PHONE,
+        }[field]
 
     value = update.message.text.strip()
     engineer_id = edit_data['engineer_id']
 
     if not validator(value):
         await update.message.reply_text(error_text)
-        return
+        return {
+            'full_name': EDIT_NAME,
+            'email': EDIT_EMAIL,
+            'phone': EDIT_PHONE,
+        }[field]
 
     db: DutyBotDatabase = context.bot_data['db']
     db.update_engineer(engineer_id, **{field: value})
@@ -169,38 +177,37 @@ async def handle_field_input(
         parse_mode='HTML'
     )
 
+    return ConversationHandler.END
+
 
 async def on_email_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await handle_field_input(
+    return await handle_field_input(
         update, context,
         field='email',
         validator=lambda v: EMAIL_REGEX.match(v),
         error_text='❌ Некорректный формат для электронной почты',
         success_text='✅ Электронная почта обновлена',
     )
-    return ConversationHandler.END
 
 
 async def on_name_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await handle_field_input(
+    return await handle_field_input(
         update, context,
         field='full_name',
         validator=lambda v: bool(v.strip()),
         error_text='❌ Имя не должно быть пустым',
         success_text='✅ Имя обновлено',
     )
-    return ConversationHandler.END
 
 
 async def on_phone_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await handle_field_input(
+    return await handle_field_input(
         update, context,
         field='phone',
         validator=lambda v: PHONE_REGEX.match(v),
         error_text='❌ Некорректный формат для номера телефона',
         success_text='✅ Номер телефона обновлён',
     )
-    return ConversationHandler.END
 
 
 async def on_department_selected(
