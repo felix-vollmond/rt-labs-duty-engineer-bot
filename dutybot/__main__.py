@@ -26,6 +26,7 @@ async def on_startup(app: Application):
     commands = [
         BotCommand('start', 'запуск бота'),
         BotCommand('help', 'справка по командам'),
+        BotCommand('cancel', 'отмена действия'),
         BotCommand('engineers', 'список инженеров'),
     ]
     await app.bot.set_my_commands(commands)

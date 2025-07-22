@@ -6,7 +6,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
         '<b>Список команд:</b>\n\n'
         '<code>/start</code> — запуск бота\n'
-        '<code>/help</code> — справка по командам\n\n'
+        '<code>/help</code> — справка по командам\n'
+        '<code>/cancel</code> — отмена действия\n\n'
         '<code>/engineers</code> — список инженеров\n\n'
         '<i>Остальные команды добавятся позже!</i>'
     )

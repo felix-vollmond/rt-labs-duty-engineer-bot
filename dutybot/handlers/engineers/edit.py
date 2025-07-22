@@ -4,7 +4,7 @@ from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup
 )
 from telegram.ext import (
-    ContextTypes, ConversationHandler,
+    ContextTypes, ConversationHandler, CommandHandler,
     CallbackQueryHandler, MessageHandler, filters
 )
 
@@ -244,6 +244,25 @@ async def on_department_selected(
     return ConversationHandler.END
 
 
+async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    edit_data = context.user_data.get('edit_engineer')
+
+    engineer_id = edit_data['engineer_id']
+    db: DutyBotDatabase = context.bot_data['db']
+
+    text = engineer_info(db, engineer_id)
+    keyboard = engineer_fields_keyboard(engineer_id)
+
+    await update.message.reply_text('ℹ️ Редактирование отменено')
+    await update.message.reply_text(
+        text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='HTML'
+    )
+
+    return ConversationHandler.END
+
+
 on_edit_engineer_handler = CallbackQueryHandler(
     on_edit_engineer,
     pattern=r'^edit_engineer:\d+$'
@@ -270,5 +289,5 @@ edit_conversation_handler = ConversationHandler(
             on_department_selected,
             pattern=r'^edit_engineer:\d+:department:\d+$')],
     },
-    fallbacks=[],
+    fallbacks=[CommandHandler('cancel', cancel_command)],
 )
