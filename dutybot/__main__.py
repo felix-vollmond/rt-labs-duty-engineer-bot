@@ -30,6 +30,7 @@ async def on_startup(app: Application):
         BotCommand('start', 'запуск бота'),
         BotCommand('help', 'справка по командам'),
         BotCommand('cancel', 'отмена действия'),
+        BotCommand('skip', 'пропуск поля'),
         BotCommand('engineers', 'список инженеров'),
         BotCommand('newengineer', 'добавление нового инженера'),
     ]
