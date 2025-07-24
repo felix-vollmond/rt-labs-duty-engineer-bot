@@ -77,6 +77,21 @@ class DutyBotDatabase:
         self.cur.execute(query)
         return self.cur.fetchall()
 
+    def get_engineers_by_department(
+            self, department_id: int
+    ) -> list[tuple[int, str, str, str, int]]:
+        query = """
+            SELECT engineer_id,
+                   full_name,
+                   email,
+                   phone,
+                   department_id
+              FROM engineers
+             WHERE department_id = ?
+        """
+        self.cur.execute(query, (department_id,))
+        return self.cur.fetchall()
+
     def get_engineer(self, id: int) -> tuple[int, str, str, str, int]:
         query = """
             SELECT engineer_id,
