@@ -8,7 +8,7 @@ from dutybot.handlers.start import start_handler
 from dutybot.handlers.help import help_handler
 from dutybot.handlers.engineers.show import (
     engineers_command_handler, list_engineers_handler,
-    on_engineer_selected_handler
+    on_engineer_selected_handler, list_departments_handler
 )
 from dutybot.handlers.engineers.edit import (
     on_edit_engineer_handler, edit_conversation_handler
@@ -52,6 +52,7 @@ def main() -> None:
     app.add_handler(start_handler)
     app.add_handler(help_handler)
     app.add_handler(engineers_command_handler)
+    app.add_handler(list_departments_handler)
     app.add_handler(list_engineers_handler)
     app.add_handler(on_engineer_selected_handler)
     app.add_handler(on_edit_engineer_handler)

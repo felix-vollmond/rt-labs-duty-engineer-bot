@@ -8,17 +8,48 @@ from telegram.ext import (
 from dutybot.database import DutyBotDatabase
 
 
+def department_keyboard() -> InlineKeyboardMarkup:
+    departments = DutyBotDatabase().get_departments()
+
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton(
+            name,
+            callback_data=f'list_engineers:{id}'
+        )]
+        for id, name in departments
+    ])
+
+
+async def list_departments(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE
+):
+    reply_markup = department_keyboard()
+
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(
+        'Выберите департамент:',
+        reply_markup=reply_markup
+    )
+
+
 def get_engineer_buttons(
+        department_id: int,
         context: ContextTypes.DEFAULT_TYPE
 ) -> InlineKeyboardMarkup:
     db: DutyBotDatabase = context.bot_data['db']
-    engineers = db.get_engineers()
+    engineers = db.get_engineers_by_department(department_id)
 
     keyboard = [
         [InlineKeyboardButton(full_name,
                               callback_data=f'select_engineer:{id}')]
         for id, full_name, *_ in engineers
     ]
+    keyboard.append([InlineKeyboardButton(
+        '⬅ Назад',
+        callback_data=f'list_departments'
+    )])
+
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     return reply_markup
@@ -28,10 +59,10 @@ async def engineers_command(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE
 ):
-    reply_markup = get_engineer_buttons(context)
+    reply_markup = department_keyboard()
 
     await update.message.reply_text(
-        'Выберите инженера:',
+        'Выберите департамент:',
         reply_markup=reply_markup
     )
 
@@ -40,10 +71,14 @@ async def list_engineers(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE
 ):
-    reply_markup = get_engineer_buttons(context)
+    query = update.callback_query
+    await query.answer()
 
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(
+    department_id = query.data.split(':')[1]
+
+    reply_markup = get_engineer_buttons(department_id, context)
+
+    await query.edit_message_text(
         'Выберите инженера:',
         reply_markup=reply_markup
     )
@@ -75,6 +110,7 @@ async def on_engineer_selected(
 
     db: DutyBotDatabase = context.bot_data['db']
     engineer_id = int(query.data.split(':')[1])
+    department_id = db.get_engineer(engineer_id)[4]
 
     text = engineer_info(db, engineer_id)
 
@@ -92,7 +128,7 @@ async def on_engineer_selected(
         [
             InlineKeyboardButton(
                 '⬅ Назад',
-                callback_data=f'list_engineers'
+                callback_data=f'list_engineers:{department_id}'
             ),
         ],
     ]
@@ -105,9 +141,14 @@ async def on_engineer_selected(
 
 
 engineers_command_handler = CommandHandler('engineers', engineers_command)
+
+list_departments_handler = CallbackQueryHandler(
+    list_departments,
+    pattern=r'^list_departments$'
+)
 list_engineers_handler = CallbackQueryHandler(
     list_engineers,
-    pattern=r'^list_engineers$'
+    pattern=r'^list_engineers:\d+$'
 )
 on_engineer_selected_handler = CallbackQueryHandler(
     on_engineer_selected,

@@ -50,12 +50,13 @@ async def on_delete_engineer(
     engineer_id = int(engineer_id)
 
     db: DutyBotDatabase = context.bot_data['db']
+    department_id = db.get_engineer(engineer_id)[4]
     db.delete_engineer(engineer_id)
 
     await query.edit_message_reply_markup(reply_markup=None)
     await query.message.reply_text('🗑 Запись о сотруднике удалена')
 
-    reply_markup = get_engineer_buttons(context)
+    reply_markup = get_engineer_buttons(department_id, context)
 
     await query.message.reply_text(
         'Выберите инженера:',
