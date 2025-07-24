@@ -10,13 +10,14 @@ from dutybot.database import DutyBotDatabase
 
 def department_keyboard() -> InlineKeyboardMarkup:
     departments = DutyBotDatabase().get_departments()
+    sorted_departments = sorted(departments, key=lambda x: x[1])
 
     return InlineKeyboardMarkup([
         [InlineKeyboardButton(
             name,
             callback_data=f'list_engineers:{id}'
         )]
-        for id, name in departments
+        for id, name in sorted_departments
     ])
 
 
@@ -38,12 +39,14 @@ def get_engineer_buttons(
         context: ContextTypes.DEFAULT_TYPE
 ) -> InlineKeyboardMarkup:
     db: DutyBotDatabase = context.bot_data['db']
+
     engineers = db.get_engineers_by_department(department_id)
+    sorted_engineers = sorted(engineers, key=lambda x: x[1])
 
     keyboard = [
         [InlineKeyboardButton(full_name,
                               callback_data=f'select_engineer:{id}')]
-        for id, full_name, *_ in engineers
+        for id, full_name, *_ in sorted_engineers
     ]
     keyboard.append([InlineKeyboardButton(
         '⬅ Назад',
