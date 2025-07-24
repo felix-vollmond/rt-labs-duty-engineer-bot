@@ -29,7 +29,7 @@ async def list_departments(
 
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(
-        'Выберите департамент:',
+        'Отделы',
         reply_markup=reply_markup
     )
 
@@ -65,7 +65,7 @@ async def engineers_command(
     reply_markup = department_keyboard()
 
     await update.message.reply_text(
-        'Выберите департамент:',
+        'Отделы',
         reply_markup=reply_markup
     )
 
@@ -77,13 +77,17 @@ async def list_engineers(
     query = update.callback_query
     await query.answer()
 
+    db: DutyBotDatabase = context.bot_data['db']
+
     department_id = query.data.split(':')[1]
+    department = db.get_department(department_id)[1]
 
     reply_markup = get_engineer_buttons(department_id, context)
 
     await query.edit_message_text(
-        'Выберите инженера:',
-        reply_markup=reply_markup
+        f'Отдел <b>«{department}»</b>',
+        reply_markup=reply_markup,
+        parse_mode='HTML'
     )
 
 

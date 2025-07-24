@@ -50,7 +50,10 @@ async def on_delete_engineer(
     engineer_id = int(engineer_id)
 
     db: DutyBotDatabase = context.bot_data['db']
+
     department_id = db.get_engineer(engineer_id)[4]
+    department = db.get_department(department_id)[1]
+
     db.delete_engineer(engineer_id)
 
     await query.edit_message_reply_markup(reply_markup=None)
@@ -59,8 +62,9 @@ async def on_delete_engineer(
     reply_markup = get_engineer_buttons(department_id, context)
 
     await query.message.reply_text(
-        'Выберите инженера:',
-        reply_markup=reply_markup
+        f'Отдел <b>«{department}»</b>',
+        reply_markup=reply_markup,
+        parse_mode='HTML'
     )
 
 
