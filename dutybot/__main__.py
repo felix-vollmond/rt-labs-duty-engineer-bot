@@ -19,6 +19,9 @@ from dutybot.handlers.engineers.delete import (
 from dutybot.handlers.engineers.create import (
     create_engineer_handler
 )
+from dutybot.handlers.duties import (
+    duty_command_handler
+)
 
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -33,6 +36,7 @@ async def on_startup(app: Application):
         BotCommand('skip', 'пропуск поля'),
         BotCommand('engineers', 'список инженеров'),
         BotCommand('newengineer', 'добавление нового инженера'),
+        BotCommand('duty', 'просмотр дежурства за выбранную дату'),
     ]
     await app.bot.set_my_commands(commands)
 
@@ -60,6 +64,7 @@ def main() -> None:
     app.add_handler(on_confirm_delete_engineer_handler)
     app.add_handler(on_delete_engineer_handler)
     app.add_handler(create_engineer_handler)
+    app.add_handler(duty_command_handler)
 
     app.add_error_handler(error)
 

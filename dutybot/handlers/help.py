@@ -11,6 +11,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         '<code>/skip</code> — пропуск поля\n\n'
         '<code>/engineers</code> — список инженеров\n'
         '<code>/newengineer</code> — добавление нового инженера\n\n'
+        '<code>/duty</code> — просмотр дежурства за выбранную дату\n\n'
         '<i>Остальные команды добавятся позже!</i>'
     )
     await update.message.reply_text(text, parse_mode='HTML')
