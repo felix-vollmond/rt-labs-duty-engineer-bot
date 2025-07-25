@@ -20,7 +20,10 @@ from dutybot.handlers.engineers.create import (
     create_engineer_handler
 )
 from dutybot.handlers.duties import (
-    duty_command_handler
+    duty_command_handler, duty_main_tab_handler,
+    duty_engineer_handler, replace_duty_engineer_handler,
+    delete_duty_engineer_handler, add_duty_engineer_handler,
+    show_free_departments_handler, show_free_department_handler
 )
 
 
@@ -65,6 +68,13 @@ def main() -> None:
     app.add_handler(on_delete_engineer_handler)
     app.add_handler(create_engineer_handler)
     app.add_handler(duty_command_handler)
+    app.add_handler(duty_main_tab_handler)
+    app.add_handler(duty_engineer_handler)
+    app.add_handler(replace_duty_engineer_handler)
+    app.add_handler(delete_duty_engineer_handler)
+    app.add_handler(add_duty_engineer_handler)
+    app.add_handler(show_free_departments_handler)
+    app.add_handler(show_free_department_handler)
 
     app.add_error_handler(error)
 
