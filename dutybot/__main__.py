@@ -23,7 +23,8 @@ from dutybot.handlers.duties import (
     duty_command_handler, duty_main_tab_handler,
     duty_engineer_handler, replace_duty_engineer_handler,
     delete_duty_engineer_handler, add_duty_engineer_handler,
-    show_free_departments_handler, show_free_department_handler
+    show_free_departments_handler, show_free_department_handler,
+    upcoming_duties_command_handler, upcoming_duties_tab_handler
 )
 
 
@@ -40,6 +41,7 @@ async def on_startup(app: Application):
         BotCommand('engineers', 'список инженеров'),
         BotCommand('newengineer', 'добавление нового инженера'),
         BotCommand('duty', 'просмотр дежурства за выбранную дату'),
+        BotCommand('upcoming', 'список предстоящих дежурств'),
     ]
     await app.bot.set_my_commands(commands)
 
@@ -75,6 +77,8 @@ def main() -> None:
     app.add_handler(add_duty_engineer_handler)
     app.add_handler(show_free_departments_handler)
     app.add_handler(show_free_department_handler)
+    app.add_handler(upcoming_duties_command_handler)
+    app.add_handler(upcoming_duties_tab_handler)
 
     app.add_error_handler(error)
 

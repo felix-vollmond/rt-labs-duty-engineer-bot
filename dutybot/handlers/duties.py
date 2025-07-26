@@ -1,6 +1,6 @@
 import re
 
-from datetime import datetime
+from datetime import datetime, date as date_class
 
 from telegram import (
     Update, InlineKeyboardMarkup, InlineKeyboardButton
@@ -29,6 +29,34 @@ async def duty_command(
     return DATE
 
 
+def upcoming_duties_message(
+        db: DutyBotDatabase
+) -> tuple[str, InlineKeyboardMarkup]:
+    today = datetime.today().strftime('%Y-%m-%d')
+
+    duties = db.get_duties_since(today)
+    unique_dates = set(duty[0] for duty in duties)
+
+    if not unique_dates:
+        return (
+            'ℹ️ Нет предстоящих дежурств',
+            InlineKeyboardMarkup([])
+        )
+
+    keyboard = [
+        [InlineKeyboardButton(
+            datetime.strptime(date, '%Y-%m-%d').strftime('%d.%m.%Y'),
+            callback_data=f'duty:{date}'
+        )]
+        for date in unique_dates
+    ]
+
+    return (
+        '📅 <b>Предстоящие дежурства</b>',
+        InlineKeyboardMarkup(keyboard)
+    )
+
+
 def duties_message(
         date: datetime,
         db: DutyBotDatabase
@@ -42,24 +70,42 @@ def duties_message(
 
     keyboard = []
 
-    for _, engineer_id, department_id in duties:
-        engineer_name = db.get_engineer(engineer_id)[1]
-        department = db.get_department(department_id)[1]
+    is_future_or_today = date.date() >= date_class.today()
+
+    if is_future_or_today:
+        for _, engineer_id, department_id in duties:
+            engineer_name = db.get_engineer(engineer_id)[1]
+            department = db.get_department(department_id)[1]
+
+            keyboard.append([
+                InlineKeyboardButton(
+                    f'{engineer_name} | {department}',
+                    callback_data=(
+                        f'duty_engineer'
+                        f':{engineer_id}:{department_id}:{iso_date}'
+                    )
+                )
+            ])
 
         keyboard.append([
             InlineKeyboardButton(
-                f'{engineer_name} | {department}',
-                callback_data=
-                    f'duty_engineer:{engineer_id}:{department_id}:{iso_date}'
+                '➕ Добавить',
+                callback_data=f'free_departments:{iso_date}'
             )
         ])
+        keyboard.append([
+            InlineKeyboardButton(
+                '⬅ К списку предстоящих дежурств',
+                callback_data=f'upcoming_duties'
+            )
+        ])
+    else:
+        text += '\n\n⚠️ <i>Дежурство уже прошло — изменения недоступны</i>\n'
+        for _, engineer_id, department_id in duties:
+            engineer_name = db.get_engineer(engineer_id)[1]
+            department = db.get_department(department_id)[1]
 
-    keyboard.append([
-        InlineKeyboardButton(
-            '➕ Добавить',
-            callback_data=f'free_departments:{iso_date}'
-        )
-    ])
+            text += f'\n<b>{engineer_name} | {department}</b>'
 
     return (text, InlineKeyboardMarkup(keyboard))
 
@@ -166,6 +212,24 @@ async def duty_main_tab(
     db: DutyBotDatabase = context.bot_data['db']
 
     text, markup = duties_message(parsed_date, db)
+
+    await query.edit_message_text(
+        text,
+        reply_markup=markup,
+        parse_mode='HTML'
+    )
+
+
+async def upcoming_duties_tab(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE
+):
+    query = update.callback_query
+    await query.answer()
+
+    db: DutyBotDatabase = context.bot_data['db']
+
+    text, markup = upcoming_duties_message(db)
 
     await query.edit_message_text(
         text,
@@ -321,6 +385,20 @@ async def delete_duty_engineer(
     )
 
 
+async def upcoming_duties_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+) -> None:
+    db: DutyBotDatabase = context.bot_data['db']
+    text, markup = upcoming_duties_message(db)
+
+    await update.message.reply_text(
+        text,
+        reply_markup=markup,
+        parse_mode='HTML'
+    )
+
+
 duty_command_handler = ConversationHandler(
     entry_points=[CommandHandler('duty', duty_command)],
     states={
@@ -355,4 +433,13 @@ duty_engineer_handler = CallbackQueryHandler(
 delete_duty_engineer_handler = CallbackQueryHandler(
     delete_duty_engineer,
     pattern=r'^delete_duty_engineer:\d+:\d{4}-\d{2}-\d{2}$'
+)
+
+upcoming_duties_command_handler = CommandHandler(
+    'upcoming',
+    upcoming_duties_command
+)
+upcoming_duties_tab_handler = CallbackQueryHandler(
+    upcoming_duties_tab,
+    pattern=r'^upcoming_duties$'
 )

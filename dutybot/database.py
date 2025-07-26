@@ -167,13 +167,25 @@ class DutyBotDatabase:
         self.con.commit()
 
 
-    def get_duties_by_date(self, date: str) -> list[tuple]:
+    def get_duties_by_date(self, date: str) -> list[tuple[str, int, int]]:
         query = """
             SELECT date,
                    engineer_id,
                    department_id
               FROM duties
              WHERE date = ?
+        """
+        self.cur.execute(query, (date,))
+        return self.cur.fetchall()
+
+    def get_duties_since(self, date: str) -> list[tuple[str, int, int]]:
+        query = """
+            SELECT date,
+                   engineer_id,
+                   department_id
+              FROM duties
+             WHERE date >= ?
+             ORDER BY date
         """
         self.cur.execute(query, (date,))
         return self.cur.fetchall()
