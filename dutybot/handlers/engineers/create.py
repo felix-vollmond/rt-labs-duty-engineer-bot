@@ -9,6 +9,7 @@ from telegram.ext import (
 )
 
 from dutybot.database import DutyBotDatabase
+from dutybot.access import restrict_access
 
 
 EMAIL_REGEX = re.compile(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$')
@@ -17,6 +18,7 @@ PHONE_REGEX = re.compile(r'^\+7\d{10}$')
 NAME, EMAIL, PHONE, DEPARTMENT = range(4)
 
 
+@restrict_access
 async def new_engineer_command(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE

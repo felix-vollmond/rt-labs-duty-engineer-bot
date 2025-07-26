@@ -6,6 +6,7 @@ from telegram.ext import (
 )
 
 from dutybot.database import DutyBotDatabase
+from dutybot.access import restrict_access
 
 
 def department_keyboard() -> InlineKeyboardMarkup:
@@ -58,6 +59,7 @@ def get_engineer_buttons(
     return reply_markup
 
 
+@restrict_access
 async def engineers_command(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE

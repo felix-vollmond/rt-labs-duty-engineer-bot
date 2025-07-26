@@ -11,6 +11,7 @@ from telegram.ext import (
 )
 
 from dutybot.database import DutyBotDatabase
+from dutybot.access import restrict_access
 
 
 DATE = 0
@@ -18,6 +19,7 @@ DATE = 0
 DATE_REGEX = re.compile(r'^\d{2}\.\d{2}\.\d{4}$')
 
 
+@restrict_access
 async def duty_command(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE
@@ -385,6 +387,7 @@ async def delete_duty_engineer(
     )
 
 
+@restrict_access
 async def upcoming_duties_command(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
