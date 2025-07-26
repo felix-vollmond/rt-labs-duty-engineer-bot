@@ -76,6 +76,13 @@ async def email_input(
         )
         return EMAIL
 
+    db: DutyBotDatabase = context.bot_data['db']
+    if db.email_exists(value):
+        await update.message.reply_text(
+            '❌ Этот адрес электронной почты занят'
+        )
+        return EMAIL
+
     context.user_data['new_engineer'].update({
         'email': value
     })
@@ -96,6 +103,13 @@ async def phone_input(
     if not PHONE_REGEX.match(value):
         await update.message.reply_text(
             '❌ Некорректный формат для номера телефона'
+        )
+        return PHONE
+
+    db: DutyBotDatabase = context.bot_data['db']
+    if db.phone_exists(value):
+        await update.message.reply_text(
+            '❌ Этот номер телефона занят'
         )
         return PHONE
 

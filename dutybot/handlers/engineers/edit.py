@@ -162,6 +162,18 @@ async def handle_field_input(
         }[field]
 
     db: DutyBotDatabase = context.bot_data['db']
+
+    if field == 'email' and db.email_exists(value):
+        await update.message.reply_text(
+            '❌ Этот адрес электронной почты занят'
+        )
+        return EDIT_EMAIL
+    elif field == 'phone' and db.phone_exists(value):
+        await update.message.reply_text(
+            '❌ Этот номер телефона занят'
+        )
+        return EDIT_PHONE
+
     db.update_engineer(engineer_id, **{field: value})
 
     context.user_data.pop('edit_engineer', None)

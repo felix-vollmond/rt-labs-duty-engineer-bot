@@ -228,3 +228,14 @@ class DutyBotDatabase:
         """
         self.cur.execute(query, (engineer_id, department_id))
         return self.cur.fetchone() is not None
+
+
+    def phone_exists(self, phone: str) -> bool:
+        query = "SELECT 1 FROM engineers WHERE phone = ? LIMIT 1"
+        self.cur.execute(query, (phone,))
+        return self.cur.fetchone() is not None
+
+    def email_exists(self, email: str) -> bool:
+        query = "SELECT 1 FROM engineers WHERE email = ? LIMIT 1"
+        self.cur.execute(query, (email,))
+        return self.cur.fetchone() is not None
