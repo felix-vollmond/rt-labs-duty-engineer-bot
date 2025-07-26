@@ -1,0 +1,8 @@
+services:
+  dutybot:
+    build: .
+    container_name: dutybot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./db:/app/db
